@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Plugin Summary
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  Generate plugin summary for livestream with OpenAI
 // @author       You
 // @match        https://wordpress.org/plugins/*
@@ -13,7 +13,7 @@
 // @downloadURL  https://raw.githubusercontent.com/chrismalone617/tampermonkey-script--generate-plugin-summary/main/generate-plugin-summary.user.js
 // ==/UserScript==
 
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = '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';
 
 // Add styles for the button and popup
 GM_addStyle(`
