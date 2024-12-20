@@ -132,7 +132,7 @@ And a 5-6 bullet point summary of what the plugin does. If there is a pro versio
                 data: JSON.stringify({
                     model: 'gpt-4o',
                     messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 500
+                    max_tokens: 1000
                 }),
                 onload: function (response) {
                     const data = JSON.parse(response.responseText);
