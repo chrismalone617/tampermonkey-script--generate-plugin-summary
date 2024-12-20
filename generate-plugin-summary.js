@@ -9,6 +9,8 @@
 // @grant        GM_addStyle
 // @require      https://cdn.jsdelivr.net/npm/marked/marked.min.js
 // @run-at       document-end
+// @updateURL     https://raw.githubusercontent.com/username/userscripts/main/generate-plugin-summary.js
+// @downloadURL   https://raw.githubusercontent.com/username/userscripts/main/generate-plugin-summary.js
 // ==/UserScript==
 
 const OPENAI_API_KEY = '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';
