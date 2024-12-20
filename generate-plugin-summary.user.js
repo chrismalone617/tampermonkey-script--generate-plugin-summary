@@ -9,6 +9,8 @@
 // @grant        GM_addStyle
 // @require      https://cdn.jsdelivr.net/npm/marked/marked.min.js
 // @run-at       document-end
+// @updateURL    https://raw.githubusercontent.com/chrismalone617/tampermonkey-script--generate-plugin-summary/main/generate-plugin-summary.user.js
+// @downloadURL  https://raw.githubusercontent.com/chrismalone617/tampermonkey-script--generate-plugin-summary/main/generate-plugin-summary.user.js
 // ==/UserScript==
 
 const OPENAI_API_KEY = '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';
