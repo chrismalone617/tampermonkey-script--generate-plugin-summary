@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Plugin Summary
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      2.0
 // @description  Generate plugin summary for livestream with OpenAI
 // @author       You
 // @match        https://wordpress.org/plugins/*
