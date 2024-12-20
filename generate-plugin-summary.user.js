@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Plugin Summary
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.5
 // @description  Generate plugin summary for livestream with OpenAI
 // @author       You
 // @match        https://wordpress.org/plugins/*
@@ -9,8 +9,6 @@
 // @grant        GM_addStyle
 // @require      https://cdn.jsdelivr.net/npm/marked/marked.min.js
 // @run-at       document-end
-// @updateURL    https://raw.githubusercontent.com/chrismalone617/tampermonkey-script--generate-plugin-summary/main/generate-plugin-summary.user.js
-// @downloadURL  https://raw.githubusercontent.com/chrismalone617/tampermonkey-script--generate-plugin-summary/main/generate-plugin-summary.user.js
 // ==/UserScript==
 
 const OPENAI_API_KEY = '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';
@@ -132,7 +130,7 @@ And a 5-6 bullet point summary of what the plugin does. If there is a pro versio
                 data: JSON.stringify({
                     model: 'gpt-4o',
                     messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 1000
+                    max_tokens: 500
                 }),
                 onload: function (response) {
                     const data = JSON.parse(response.responseText);
