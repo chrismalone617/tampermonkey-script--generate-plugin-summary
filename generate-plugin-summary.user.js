@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Plugin Summary
 // @namespace    http://tampermonkey.net/
-// @version      3.5
+// @version      4.5
 // @description  Generate plugin summary for livestream with OpenAI
 // @author       You
 // @match        https://wordpress.org/plugins/*
@@ -43,51 +43,49 @@
         alert('No API Key found. Exiting script.');
         return;
     }
-// Add styles for the button and popup
-GM_addStyle(`
-    #summary-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 10000;
-        padding: 10px 20px;
-        background-color: #0073AA;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    #summary-container {
-        position: fixed;
-        top: 10%;
-        left: 10%;
-        width: 80%;
-        height: 80%;
-        background: white;
-        z-index: 10001;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        overflow-y: auto;
-        display: none;
-        padding: 20px;
-    }
-    #summary-content {
-        margin-top: 20px;
-        line-height: 1.6;
-    }
-    .summary-close {
-        position: absolute;
-        top: 10px;
-        right: 20px;
-        cursor: pointer;
-        font-size: 20px;
-        color: #333;
-    }
-`);
 
-(function () {
-    'use strict';
+    // Add styles for the button and popup
+    GM_addStyle(`
+        #summary-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 10px 20px;
+            background-color: #0073AA;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #summary-container {
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: white;
+            z-index: 10001;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow-y: auto;
+            display: none;
+            padding: 20px;
+        }
+        #summary-content {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .summary-close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+        }
+    `);
 
     // Add the "Plugin Summary" button to the page
     const button = document.createElement('button');
@@ -110,7 +108,37 @@ GM_addStyle(`
         container.style.display = 'none';
     };
 
-    // Trigger summary generation when the button is clicked
+    // Function to call OpenAI API and generate a summary
+    async function generateSummary(apiKey, prompt) {
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'POST',
+                url: 'https://api.openai.com/v1/chat/completions',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                data: JSON.stringify({
+                    model: 'gpt-4o', // Use GPT-4 by default
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 500,
+                }),
+                onload: function (response) {
+                    const data = JSON.parse(response.responseText);
+                    if (data.choices && data.choices[0]?.message?.content) {
+                        resolve(data.choices[0].message.content.trim());
+                    } else {
+                        reject(new Error('Failed to generate summary. Check API response.'));
+                    }
+                },
+                onerror: function (err) {
+                    reject(new Error('Failed to connect to OpenAI API.'));
+                },
+            });
+        });
+    }
+
+    // Trigger plugin summary generation when the button is clicked
     button.onclick = async () => {
         const pluginTitle = document.querySelector('h1.plugin-title')?.textContent?.trim() || 'Unknown Plugin';
         const authorElement = document.querySelector('.author.vcard a.url.fn.n');
@@ -125,13 +153,18 @@ GM_addStyle(`
         const downloadLink = document.querySelector('.plugin-download a');
         const downloadUrl = downloadLink ? downloadLink.href : 'No download link found';
 
+        // RESTORING YOUR CUSTOM PROMPT FORMATTING
         const prompt = `
 I need the information about this plugin for a livestream. I need:
 
 Plugin Title: ${pluginTitle}
+
 Plugin Author: ${author}
+
 Link to Repository Page: ${repositoryUrl}
+
 Image Icon: ${iconUrl}
+
 Download Link: ${downloadUrl}
 
 And a 5-6 bullet point summary of what the plugin does. If there is a pro version of the plugin, give an extra bullet point summarizing what the pro version offers in a few words.`;
@@ -139,41 +172,10 @@ And a 5-6 bullet point summary of what the plugin does. If there is a pro versio
         container.style.display = 'block';
 
         try {
-            const summary = await generateSummary(prompt);
-            // Render Markdown content into proper HTML
+            const summary = await generateSummary(OPENAI_API_KEY, prompt);
             document.getElementById('summary-content').innerHTML = marked.parse(summary);
         } catch (error) {
             document.getElementById('summary-content').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
         }
     };
-
-    // Function to call OpenAI API and generate summary
-    async function generateSummary(prompt) {
-        return new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: 'POST',
-                url: 'https://api.openai.com/v1/chat/completions',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                data: JSON.stringify({
-                    model: 'gpt-4o',
-                    messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 500
-                }),
-                onload: function (response) {
-                    const data = JSON.parse(response.responseText);
-                    if (data.choices && data.choices[0]?.message?.content) {
-                        resolve(data.choices[0].message.content.trim());
-                    } else {
-                        reject(new Error('Failed to generate summary'));
-                    }
-                },
-                onerror: function (err) {
-                    reject(new Error('Failed to connect to OpenAI API'));
-                }
-            });
-        });
-    }
 })();
